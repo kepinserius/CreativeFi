@@ -1,0 +1,52 @@
+{
+  "name": "creativefi",
+  "version": "1.0.0",
+  "description": "A decentralized crowdfunding platform for creators",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "node backend/dist/server.js",
+    "test": "npm run test:contracts && npm run test:frontend && npm run test:backend",
+    "test:contracts": "cd creativefi && npx hardhat test",
+    "test:frontend": "cd frontend && npm run test",
+    "test:backend": "cd backend && npm run test",
+    "compile": "cd creativefi && npx hardhat compile",
+    "deploy": "cd creativefi && npx hardhat run scripts/deploy.js --network mumbai"
+  },
+  "keywords": [
+    "blockchain",
+    "crowdfunding",
+    "defi",
+    "web3",
+    "ethereum",
+    "polygon",
+    "nft",
+    "creator-economy"
+  ],
+  "author": "CreativeFi Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "hardhat": "^2.22.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/creativefi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/creativefi/issues"
+  },
+  "homepage": "https://github.com/yourusername/creativefi#readme"
+}
