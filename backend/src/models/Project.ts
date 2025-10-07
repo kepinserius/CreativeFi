@@ -85,15 +85,20 @@ export class ProjectModel {
       throw new Error('No valid fields to update');
     }
     
-    const setClause = updateFields.map((field, index) => `${field} = ${index + 2}`).join(', ');
+    const setClause = updateFields.map((field, index) => `${field} = $${index + 2}`).join(', ');
+
     const values = [id, ...updateFields.map(field => updates[field as keyof Partial<Project>])];
-    
-    const result = await pool.query(
-      `UPDATE projects SET ${setClause}, updated_at = NOW() WHERE id = $1 RETURNING *`,
-      values
-    );
-    
-    return result.rows[0] || null;
+
+    try {
+      const result = await pool.query(
+        `UPDATE projects SET ${setClause}, updated_at = NOW() WHERE id = $1 RETURNING *`,
+        values
+      );
+      return result.rows[0] || null;
+    } catch (error: any) {
+      console.error('Error in updateById:', error.message);
+      throw error;
+    }
   }
 
   static async getByCreatorAddress(creatorAddress: string): Promise<Project[]> {
