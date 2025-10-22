@@ -38,6 +38,7 @@ frontend/build/
 frontend/dist/
 frontend/public/vite.svg
 frontend/.vite/
+frontend/.next/
 
 # TypeScript
 *.tsbuildinfo
