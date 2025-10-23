@@ -1,0 +1,15 @@
+<!-- This is a placeholder SVG that can be used as an Open Graph image -->
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#111827"/>
+  <rect x="50" y="50" width="1100" height="530" rx="20" fill="#1f2937"/>
+  <text x="600" y="250" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle">
+    CreativeFi
+  </text>
+  <text x="600" y="320" font-family="Arial, sans-serif" font-size="24" fill="#9ca3af" text-anchor="middle">
+    Decentralized Crowdfunding Platform
+  </text>
+  <text x="600" y="400" font-family="Arial, sans-serif" font-size="18" fill="#d1d5db" text-anchor="middle">
+    Fund your creative projects with blockchain technology
+  </text>
+  <circle cx="600" cy="500" r="40" fill="#8b5cf6"/>
+</svg>

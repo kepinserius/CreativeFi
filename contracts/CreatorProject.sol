@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -58,6 +58,7 @@ contract CreatorProject is ERC20, ERC20Burnable, ReentrancyGuard, Ownable {
     // Emergency withdrawal
     mapping(address => uint256) public emergencyVotes;
     mapping(address => bool) public hasVotedForEmergency;
+    uint256 public totalEmergencyVotes; // Total votes cast for emergency withdrawal
     uint256 public emergencyThreshold; // Percentage of total tokens required for emergency withdrawal (in basis points)
 
     // Events
@@ -65,7 +66,7 @@ contract CreatorProject is ERC20, ERC20Burnable, ReentrancyGuard, Ownable {
     event MilestoneAdded(uint256 indexed milestoneId, string title, uint256 amount);
     event MilestoneCompleted(uint256 indexed milestoneId);
     event MilestoneFundsReleased(uint256 indexed milestoneId, uint256 amount);
-    event RevenueDistributed(uint256 indexed projectId, uint256 amount, uint256 platformShare, uint256 creatorShare);
+    event RevenueDistributed(uint256 indexed projectId, uint256 amount, uint256 platformShare, uint256 creatorShare, uint256 investorShare);
     event EmergencyWithdrawalInitiated(address indexed voter, uint256 votes);
     event EmergencyWithdrawalExecuted(uint256 amount);
 
@@ -81,7 +82,10 @@ contract CreatorProject is ERC20, ERC20Burnable, ReentrancyGuard, Ownable {
         uint256 _creatorPercentage,
         uint256 _platformPercentage,
         uint256 _emergencyThreshold
-    ) ERC20(string.concat(_title, " Token"), string.concat("cr", _title)) {
+    ) 
+        ERC20(string.concat(_title, " Token"), string.concat("cr", _title))
+        Ownable(_creator) // Pass the creator as the owner
+    {
         title = _title;
         description = _description;
         category = _category;
@@ -232,23 +236,25 @@ contract CreatorProject is ERC20, ERC20Burnable, ReentrancyGuard, Ownable {
         
         // Calculate shares
         uint256 platformShare = (amount * platformPercentage) / 10000;
-        uint256 remainingAmount = amount - platformShare;
+        uint256 creatorShare = (amount * creatorPercentage) / 10000;
+        uint256 investorShare = amount - platformShare - creatorShare;
         
-        // Distribute to token holders proportionally
-        // This is a simplified version - in practice, you'd use snapshots to track shares over time
-        uint256 totalSupplyForDistribution = TOTAL_SUPPLY; // Exclude creator's initial tokens for this simple model
-        
+        // Transfer platform share to platform wallet
+        // This would be implemented with a configured platform wallet address
+        // For now, we'll just emit the event
         if (platformShare > 0) {
-            // Transfer platform share to platform wallet
-            // Address needs to be configured in a real implementation
+            // In a real implementation, this would be a transfer to a platform wallet
+            // (bool platformSuccess, ) = platformWallet.call{value: platformShare}("");
+            // require(platformSuccess, "Platform share transfer failed");
         }
         
-        // Distribute investor share proportionally
-        for (uint256 i = 0; i < 100; i++) { // In a real implementation, iterate through all token holders
-            // For brevity, simplified distribution logic
-        }
-        
-        emit RevenueDistributed(0, amount, platformShare, remainingAmount);
+        // For investor distribution, we need to iterate through token holders
+        // This is a simplified version - a production implementation would use:
+        // 1. A mapping of token holders and an array to iterate through them
+        // 2. Possibly a pull-based system rather than a push-based system
+        // 3. Snapshots to track shares at the time of distribution
+        // For now, we'll emit an event to be handled by an off-chain service
+        emit RevenueDistributed(0, amount, platformShare, creatorShare, investorShare);
     }
 
     // Creator can withdraw vested tokens
@@ -280,16 +286,19 @@ contract CreatorProject is ERC20, ERC20Burnable, ReentrancyGuard, Ownable {
         require(!hasVotedForEmergency[msg.sender], "Already voted for emergency withdrawal");
         
         uint256 voteWeight = balanceOf(msg.sender);
+        require(voteWeight > 0, "No tokens to vote with");
+        
         emergencyVotes[msg.sender] = voteWeight;
         hasVotedForEmergency[msg.sender] = true;
         
-        uint256 totalVotes = emergencyVotes[msg.sender];
-        uint256 totalSupplyWithVotes = TOTAL_SUPPLY; // Simplified for this example
+        // Update total votes cast
+        totalEmergencyVotes += voteWeight;
         
-        if ((totalVotes * 10000) / totalSupplyWithVotes >= emergencyThreshold) {
+        // Check if threshold is met
+        if ((totalEmergencyVotes * 10000) / TOTAL_SUPPLY >= emergencyThreshold) {
             // Execute emergency withdrawal
             uint256 contractBalance = address(this).balance;
-            (bool success, ) = msg.sender.call{value: contractBalance}("");
+            (bool success, ) = creator.call{value: contractBalance}("");
             require(success, "Emergency withdrawal failed");
             
             emit EmergencyWithdrawalExecuted(contractBalance);

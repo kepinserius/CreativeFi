@@ -14,6 +14,7 @@ typechain-types/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
 
 # IDE
 .vscode/
@@ -32,6 +33,10 @@ build/
 coverage/
 .nyc_output/
 logs/
+backend/dist/
+backend/build/
+backend/.next/
+backend/coverage/
 
 # Frontend
 frontend/build/
@@ -39,6 +44,8 @@ frontend/dist/
 frontend/public/vite.svg
 frontend/.vite/
 frontend/.next/
+frontend/out/
+frontend/.env.local
 
 # TypeScript
 *.tsbuildinfo
@@ -53,6 +60,10 @@ yarn-error.log*
 
 # Blockchain
 .solhint-cache
+contracts/artifacts/
+contracts/cache/
+contracts/build-info/
+.solcover.js
 coverage/
 
 # Process environment
@@ -62,6 +73,49 @@ coverage/
 /hardhat.config.js
 /hardhat.config.ts
 
-# Ignore specific build outputs that might not be in standard locations
-contracts/artifacts/
-contracts/cache/
+# Docker
+.dockerignore
+docker-compose*.yml
+docker-compose*.yaml
+
+# Testing
+test-results/
+cypress/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.db
+*.db.*
+
+# Production
+public/uploads/
+frontend/public/uploads/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Coverage directory used by tools like istanbul
+.nyc_output/
+
+# nyc test coverage
+.nyc_output
+
+# Git
+.git/
+
+# Spotlight and other system files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Testing-specific
+cypress/
+test-results/

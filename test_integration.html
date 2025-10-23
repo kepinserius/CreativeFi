@@ -1,0 +1,356 @@
+// Content DeFi Web3 Integration Test
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Content DeFi Web3 Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .contract-info { font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Content DeFi Web3 Integration Test</h1>
+    
+    <div class="test-section" id="backend-status">
+        <h3>Backend Status</h3>
+        <p>Testing connection to backend at http://localhost:5000</p>
+        <button onclick="testHealth()">Test Backend Connection</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test-section" id="api-test">
+        <h3>API Integration Test</h3>
+        <p>Testing API endpoints that don't require database</p>
+        <button onclick="testUserRegistration()">Test User Registration (Mock)</button>
+        <div id="registration-result"></div>
+    </div>
+
+    <div class="test-section" id="web3-test">
+        <h3>Web3 Connection Test</h3>
+        <p>Testing Web3 provider and Metamask connection</p>
+        <button onclick="testWeb3Connection()">Test Web3 Connection</button>
+        <div id="web3-result"></div>
+    </div>
+
+    <div class="test-section" id="smart-contract-test">
+        <h3>Smart Contract Interaction Test</h3>
+        <p>Testing interaction with deployed smart contracts</p>
+        <button onclick="testContractDeployment()">Test Contract Deployment</button>
+        <div id="contract-deployment-result"></div>
+    </div>
+
+    <div class="test-section" id="project-creation-test">
+        <h3>Project Creation Test</h3>
+        <p>Testing creation of a new project via smart contract</p>
+        <button onclick="testProjectCreation()">Test Project Creation</button>
+        <div id="project-creation-result"></div>
+    </div>
+
+    <div class="test-section" id="investment-test">
+        <h3>Investment Test</h3>
+        <p>Testing investment functionality</p>
+        <button onclick="testInvestment()">Test Investment</button>
+        <div id="investment-result"></div>
+    </div>
+
+    <div class="test-section" id="fe-be-contract-test">
+        <h3>FE-BE-Contract Integration Test</h3>
+        <p>Testing full integration: Frontend → Backend → Smart Contract</p>
+        <button onclick="testFullIntegration()">Test Full Integration</button>
+        <div id="integration-result"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000/api';
+        const FRONTEND_URL = 'http://localhost:3000';
+        
+        // Web3 related variables
+        let web3;
+        let accounts;
+        let projectFactoryContract;
+        let selectedContractAddress;
+        
+        // Contract addresses - these will be updated after deployment
+        let contractAddresses = {
+            projectFactory: null,
+            revenueDistributor: null
+        };
+        
+        async function testHealth() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                
+                document.getElementById('health-result').innerHTML = 
+                    `<div class="success"><strong>✅ Success!</strong> ${data.message}</div>`;
+            } catch (error) {
+                document.getElementById('health-result').innerHTML = 
+                    `<div class="error"><strong>❌ Error:</strong> ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Backend Connection';
+            }
+        }
+        
+        async function testUserRegistration() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                // This will fail due to DB issue, but let's see the response
+                const response = await fetch(`${BACKEND_URL}/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                        username: 'testuser',
+                        email: 'test@example.com',
+                        role: 'creator'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('registration-result').innerHTML = 
+                        `<div class="success"><strong>✅ Success!</strong> User registered: ${data.user.username}</div>`;
+                } else {
+                    document.getElementById('registration-result').innerHTML = 
+                        `<div class="error"><strong>❌ API Error:</strong> ${data.message}. This is expected due to database configuration.</div>`;
+                }
+            } catch (error) {
+                document.getElementById('registration-result').innerHTML = 
+                    `<div class="error"><strong>❌ Network Error:</strong> ${error.message}</div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test User Registration (Mock)';
+            }
+        }
+        
+        async function testWeb3Connection() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            const resultDiv = document.getElementById('web3-result');
+            
+            try {
+                // Check if Metamask is installed
+                if (typeof window.ethereum !== 'undefined') {
+                    web3 = new Web3(window.ethereum);
+                    
+                    // Request account access
+                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    resultDiv.innerHTML = 
+                        `<div class="success">
+                            <strong>✅ Web3 Connected!</strong><br>
+                            Provider: Metamask<br>
+                            Connected account: ${accounts[0]}<br>
+                            Network ID: ${await web3.eth.net.getId()}
+                        </div>`;
+                } else {
+                    resultDiv.innerHTML = 
+                        `<div class="error">
+                            <strong>❌ Web3 Provider Not Found!</strong><br>
+                            Please install Metamask or another Web3 provider.
+                        </div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = 
+                    `<div class="error">
+                        <strong>❌ Web3 Connection Error:</strong> ${error.message}
+                    </div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Web3 Connection';
+            }
+        }
+        
+        async function testContractDeployment() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            const resultDiv = document.getElementById('contract-deployment-result');
+            
+            try {
+                if (!web3 || !accounts) {
+                    throw new Error('Web3 not connected. Please connect to Web3 first.');
+                }
+                
+                // This would require the actual ABI and bytecode of the contracts
+                // For now, we'll show how it would work with a placeholder
+        
+                // In a real scenario, you would:
+                // 1. Load the Contract ABI
+                // 2. Create contract instance with deployed address or deploy new instance
+                // 3. Make calls to the contract
+        
+                resultDiv.innerHTML = 
+                    `<div class="success">
+                        <strong>✅ Smart Contract Test Ready!</strong><br>
+                        Web3 is connected and ready to interact with smart contracts.<br>
+                        Contract ABIs and deployed addresses are needed for actual interaction.
+                    </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = 
+                    `<div class="error">
+                        <strong>❌ Contract Deployment Test Error:</strong> ${error.message}
+                    </div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Contract Deployment';
+            }
+        }
+        
+        async function testProjectCreation() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            const resultDiv = document.getElementById('project-creation-result');
+            
+            try {
+                if (!web3 || !accounts) {
+                    throw new Error('Web3 not connected. Please connect to Web3 first.');
+                }
+                
+                // Simulate project creation
+                // In real implementation, this would call the ProjectFactory contract
+                const projectData = {
+                    title: "Test Project",
+                    description: "A test project for Content DeFi",
+                    category: "Technology",
+                    fundingGoal: web3.utils.toWei("10", "ether"), // 10 ETH
+                    deadline: Math.floor(Date.now() / 1000) + 86400 * 7, // 1 week from now
+                    usdcToken: "0x9999999999999999999999999999999999999999", // Mock USDC
+                    usdtToken: "0x8888888888888888888888888888888888888888", // Mock USDT
+                    creatorPercentage: 2000, // 20%
+                    platformPercentage: 500,  // 5%
+                    emergencyThreshold: 5000  // 50%
+                };
+                
+                resultDiv.innerHTML = 
+                    `<div class="success">
+                        <strong>✅ Project Creation Test Simulated!</strong><br>
+                        Project Data Prepared:<br>
+                        - Title: ${projectData.title}<br>
+                        - Funding Goal: ${web3.utils.fromWei(projectData.fundingGoal, "ether")} ETH<br>
+                        - Deadline: ${new Date(projectData.deadline * 1000).toLocaleString()}<br>
+                        In real implementation, this would call the ProjectFactory contract to create the project.
+                    </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = 
+                    `<div class="error">
+                        <strong>❌ Project Creation Test Error:</strong> ${error.message}
+                    </div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Project Creation';
+            }
+        }
+        
+        async function testInvestment() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            const resultDiv = document.getElementById('investment-result');
+            
+            try {
+                if (!web3 || !accounts) {
+                    throw new Error('Web3 not connected. Please connect to Web3 first.');
+                }
+                
+                // Simulate investment
+                // In real implementation, this would call the CreatorProject contract
+                const investmentData = {
+                    projectAddress: "0x1234567890123456789012345678901234567890", // Mock project address
+                    token: "0x0000000000000000000000000000000000000000", // ETH
+                    amount: web3.utils.toWei("1", "ether") // 1 ETH
+                };
+                
+                resultDiv.innerHTML = 
+                    `<div class="success">
+                        <strong>✅ Investment Test Simulated!</strong><br>
+                        Investment Data Prepared:<br>
+                        - Project: ${investmentData.projectAddress}<br>
+                        - Amount: ${web3.utils.fromWei(investmentData.amount, "ether")} ETH<br>
+                        In real implementation, this would call the invest function on the CreatorProject contract.
+                    </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = 
+                    `<div class="error">
+                        <strong>❌ Investment Test Error:</strong> ${error.message}
+                    </div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Investment';
+            }
+        }
+        
+        async function testFullIntegration() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            const resultDiv = document.getElementById('integration-result');
+            
+            try {
+                // Step 1: Test if backend is accessible
+                const healthResponse = await fetch(`${BACKEND_URL}/health`);
+                const healthData = await healthResponse.json();
+                
+                if (!healthResponse.ok) {
+                    throw new Error(`Backend health check failed: ${healthData.message}`);
+                }
+                
+                // Step 2: Check Web3 connection
+                let web3Connected = false;
+                if (typeof window.ethereum !== 'undefined') {
+                    web3 = new Web3(window.ethereum);
+                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    web3Connected = true;
+                }
+                
+                // Step 3: Show integration results
+                let web3Status = web3Connected ? 
+                    `<li>✅ Web3 connected: ${accounts[0]}</li>` : 
+                    `<li>⚠️ Web3 not connected (Metamask or other provider required)</li>`;
+                
+                resultDiv.innerHTML = 
+                    `<div class="success">
+                        <strong>✅ Full Integration Status!</strong><br>
+                        <ul>
+                            <li>✅ Backend is accessible at ${BACKEND_URL}</li>
+                            <li>✅ Health check: ${healthData.message}</li>
+                            ${web3Status}
+                            <li>✅ Frontend-Backend communication working</li>
+                        </ul>
+                        In a complete implementation, this would test the full flow: 
+                        Frontend → Backend → Smart Contract interaction.
+                    </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = 
+                    `<div class="error">
+                        <strong>❌ Integration Error:</strong> ${error.message}
+                    </div>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Full Integration';
+            }
+        }
+    </script>
+    <!-- Load Web3 library -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 // src/components/ExploreProjects.tsx
+'use client';
 import { useState } from 'react';
 import { ProjectCard } from './ProjectCard';
 

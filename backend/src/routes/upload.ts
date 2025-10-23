@@ -58,7 +58,7 @@ router.post('/', upload.single('file'), async (req: MulterRequest, res: Response
     console.error('Error uploading to IPFS:', error);
     res.status(500).json({ message: 'Error uploading file to IPFS', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 });
 
 // GET /api/media/:hash - Get media from IPFS
@@ -81,7 +81,7 @@ router.get('/media/:hash', async (req: Request, res: Response) => {
     console.error('Error retrieving media:', error);
     res.status(500).json({ message: 'Error retrieving media', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 });
 
 export default router;

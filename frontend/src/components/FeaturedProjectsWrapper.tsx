@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import the FeaturedProjects component with lazy loading
 const LazyFeaturedProjects = dynamic(
-  () => import('./FeaturedProjects'),
+  () => import('./FeaturedProjects').then((mod) => ({ default: mod.FeaturedProjects })),
   {
     loading: () => (
       <div className="py-16 flex justify-center items-center">

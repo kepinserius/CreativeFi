@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import the Footer component with lazy loading
 const LazyFooter = dynamic(
-  () => import('./Footer'),
+  () => import('./Footer').then((mod) => ({ default: mod.Footer })),
   {
     loading: () => (
       <div className="bg-gray-900 border-t border-gray-800 py-12 flex justify-center items-center">

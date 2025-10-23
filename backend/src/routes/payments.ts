@@ -34,7 +34,7 @@ router.post('/onramp/quote', async (req: Request, res: Response) => {
     console.error('Error getting onramp quote:', error);
     res.status(500).json({ message: 'Error getting onramp quote', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 });
 
 // POST /api/offramp/initiate - Initiate cashout crypto to fiat
@@ -65,7 +65,7 @@ router.post('/offramp/initiate', async (req: Request, res: Response) => {
     console.error('Error initiating offramp:', error);
     res.status(500).json({ message: 'Error initiating offramp', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 });
 
 export default router;

@@ -22,13 +22,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'CreativeFi - Decentralized Crowdfunding for Creators',
     description: 'A platform for creators to crowdfund their projects with token rewards',
-    url: 'https://creativefi.example.com',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     siteName: 'CreativeFi',
     images: [
       {
-        url: '/og-image.jpg', // TODO: Add actual og image
-        width: 800,
-        height: 600,
+        url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/og-image-placeholder.svg` : '/og-image-placeholder.svg',
+        width: 1200,
+        height: 630,
+        alt: 'CreativeFi',
       },
     ],
     locale: 'en_US',

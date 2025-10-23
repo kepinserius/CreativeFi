@@ -12,10 +12,13 @@ interface Project {
   totalRaised: number;
   deadline: string;
   image: string;
+  status?: 'draft' | 'active' | 'funded' | 'completed' | 'failed';
+  investorCount?: number;
+  roi?: number;
 }
 
 export const ProjectCard = ({ project }: { project: Project }) => {
-  const percentageRaised = (project.totalRaised / project.fundingGoal) * 100;
+  const percentageRaised = project.fundingGoal ? (project.totalRaised / project.fundingGoal) * 100 : 0;
   
   // Calculate days remaining
   const today = new Date();
@@ -46,8 +49,8 @@ export const ProjectCard = ({ project }: { project: Project }) => {
         
         <div className="mb-5">
           <div className="flex justify-between text-sm text-gray-400 mb-1">
-            <span>{formatEther(BigInt(project.totalRaised))} ETH</span>
-            <span>{formatEther(BigInt(project.fundingGoal))} ETH</span>
+            <span>{project.totalRaised.toLocaleString()} ETH</span>
+            <span>{project.fundingGoal.toLocaleString()} ETH</span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2.5">
             <div 
@@ -71,7 +74,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
         <div className="flex justify-between items-center">
           <div className="text-sm">
             <p className="text-gray-400">Raised</p>
-            <p className="text-white font-semibold">{formatEther(BigInt(project.totalRaised))} ETH</p>
+            <p className="text-white font-semibold">{project.totalRaised.toLocaleString()} ETH</p>
           </div>
           
           <Link 

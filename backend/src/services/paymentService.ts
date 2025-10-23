@@ -41,12 +41,31 @@ export class PaymentService {
         throw new Error('Transak API key not configured');
       }
       
-      // In a real implementation, we would call the Transak API
-      // For now, we'll return a mock response
+      // Prepare the Transak widget URL with the parameters
+      const environment = this.config.environment.toLowerCase();
+      const transakUrl = `https://${environment}.transak.com`;
+      
+      // In a real implementation, we would call Transak's API to get a quote
+      // For this implementation, we'll return the URL to initialize the widget
+      const queryParams = new URLSearchParams({
+        apiKey: this.config.apiKey,
+        cryptoCurrencyCode: request.cryptoCurrencyCode,
+        networks: request.network,
+        fiatCurrency: request.fiatCurrency,
+        defaultFiatAmount: request.requestedAmount.toString(),
+        walletAddress: request.walletAddress,
+        isAutoFill: 'true',
+        hideMenu: 'true',
+        exchangeScreenTitle: 'Fund Your Wallet',
+        themeColor: '#6d28d9', // Purple theme to match our app
+        ...request.email && { email: request.email },
+        ...request.redirectURL && { redirectURL: request.redirectURL }
+      });
+      
       return {
         success: true,
         data: {
-          url: `https://global.transak.com/?apiKey=${this.config.apiKey}&cryptoCurrencyCode=${request.cryptoCurrencyCode}&network=${request.network}&fiatCurrency=${request.fiatCurrency}&requestedAmount=${request.requestedAmount}&walletAddress=${request.walletAddress}`,
+          url: `${transakUrl}?${queryParams.toString()}`,
           orderId: `ORDER_${Date.now()}`
         }
       };

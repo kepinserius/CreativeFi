@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import the HowItWorks component with lazy loading
 const LazyHowItWorks = dynamic(
-  () => import('./HowItWorks'),
+  () => import('./HowItWorks').then((mod) => ({ default: mod.HowItWorks })),
   {
     loading: () => (
       <div className="py-16 flex justify-center items-center">

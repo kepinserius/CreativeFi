@@ -1,303 +1,218 @@
-# CreativeFi - Decentralized Crowdfunding Platform
+# Content DeFi Platform
 
-CreativeFi is a decentralized crowdfunding platform for content creators, built on Polygon blockchain. It enables creators to raise funds for their projects by offering token rewards to investors, with automated revenue distribution and milestone-based fund releases.
+Content DeFi is a comprehensive decentralized crowdfunding platform for creators, enabling them to fund their projects through token-based investments. The platform leverages blockchain technology to create a transparent, secure, and efficient funding ecosystem.
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Smart Contract Deployment](#smart-contract-deployment)
-- [Environment Setup](#environment-setup)
-- [Development](#development)
-- [Deployment](#deployment)
-- [Testing](#testing)
-- [API Documentation](#api-documentation)
-- [Security](#security)
+## 🚀 Features
 
-## Features
+- **Decentralized Crowdfunding**: Creators can launch funding campaigns with transparent milestone tracking
+- **Multi-token Support**: Accept investments in ETH, USDC, and USDT
+- **Smart Contract Integration**: Secure, automated contract execution
+- **Revenue Distribution**: Automatic profit sharing with token holders
+- **Vesting Schedules**: Creator funds are released gradually to prevent immediate dumping
+- **Milestone Tracking**: Transparent project progress verification
+- **Web3 Integration**: Seamless wallet connection and transactions
 
-### Smart Contracts
-- **ProjectFactory**: Factory contract to create new project contracts
-- **CreatorProject**: Individual project contracts with:
-  - ERC20 token for each project
-  - Multi-token investment support (ETH/USDC/USDT)
-  - Milestone-based fund release mechanism
-  - Automated revenue distribution to token holders
-  - Emergency withdrawal mechanism with voting
-  - Vesting schedule for creators (3-month cliff, 12-month vesting)
-- **RevenueDistributor**: Automated royalty distribution contract
+## 🏗️ Architecture
 
-### Frontend
-- **Homepage**: Featured projects, stats, and how it works
-- **Project Detail**: Investment calculator, milestone tracking, token holder info
-- **Create Project**: Multi-step form with teaser upload and milestone planning
-- **Creator Dashboard**: Project management, milestone tracking, revenue distribution
-- **Investor Portfolio**: Investment tracking, ROI analysis, transaction history
-- **Explore Projects**: Advanced filtering and sorting
-- **Web3 Integration**: Wallet connection, contract interactions, transaction tracking
+The platform consists of three interconnected components:
 
-### Backend
-- **API Endpoints**: Projects, users, analytics, media upload, payment integration
-- **Database**: PostgreSQL with comprehensive schema
-- **IPFS Integration**: For media uploads via Pinata
-- **Payment Gateway**: Fiat on/off ramp via Transak
-- **Security**: Helmet.js, rate limiting, input validation, authentication
+### 1. Smart Contracts
+- **CreatorProject.sol**: Individual funding campaigns with investment handling
+- **ProjectFactory.sol**: Project creation and management hub
+- **RevenueDistributor.sol**: Revenue distribution mechanism
 
-## Tech Stack
+### 2. Backend API
+- User authentication and management
+- Project metadata storage
+- Smart contract interaction service
+- Investment tracking and analytics
 
-### Frontend
-- Next.js 14 with App Router
-- TypeScript
-- TailwindCSS for styling
-- RainbowKit for wallet connection
-- Wagmi and viem for contract interactions
-- Shadcn/ui for components
+### 3. Frontend Application
+- Modern Next.js interface
+- Web3 wallet integration
+- Project discovery and investment
+- Creator dashboard
 
-### Smart Contracts
-- Solidity
-- Hardhat for development
-- OpenZeppelin for secure implementations
-- Polygon Mumbai Testnet
+## 📦 Prerequisites
 
-### Backend
-- Node.js with Express
-- PostgreSQL for persistent data
-- Pinata SDK for IPFS
-- JWT for authentication
-- Bcrypt for password hashing
+- **Node.js** (v18 or higher recommended)
+- **npm** or **yarn**
+- **Docker** and **Docker Compose** (for containerized deployment)
+- **Git**
 
-## Architecture
+## 🛠️ Local Development Setup
 
-```
-┌─────────────┐    ┌──────────────────┐    ┌──────────────┐
-│   Frontend  │◄──►│     Backend      │◄──►│  PostgreSQL  │
-│ (Next.js)   │    │   (Express)      │    │   Database   │
-└─────────────┘    └──────────────────┘    └──────────────┘
-                        │    ▲
-                        │    │
-              ┌─────────▼────┼─────────┐
-              │ Smart Contracts │    │ IPFS (Pinata)
-              │ (Polygon)     │    │
-              └───────────────────┘
+### Quick Start with Docker (Recommended)
+
+The easiest way to run Content DeFi locally is using Docker Compose:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd contentdefi
+
+# Copy environment file
+cp .env.example .env
+
+# Start all services
+docker-compose up --build
+
+# Services will be available at:
+# - Frontend: http://localhost:3000
+# - Backend: http://localhost:5000
+# - Hardhat Node: http://localhost:8545
+# - PostgreSQL: localhost:5432
 ```
 
-## Installation
+### Manual Setup
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- Docker (for PostgreSQL)
-- MetaMask wallet
-
-### Steps
-
-1. Clone the repository:
+1. **Clone the repository**
 ```bash
 git clone <repository-url>
-cd creativefi
+cd contentdefi
 ```
 
-2. Install frontend dependencies:
+2. **Install root dependencies**
 ```bash
-cd frontend
 npm install
-cd ..
 ```
 
-3. Install backend dependencies:
+3. **Install smart contract dependencies**
+```bash
+npm install @openzeppelin/contracts
+```
+
+4. **Set up backend**
 ```bash
 cd backend
 npm install
-cd ..
 ```
 
-4. Install smart contract dependencies:
+5. **Set up frontend**
 ```bash
-cd creativefi
+cd ../frontend
 npm install
 ```
 
-## Smart Contract Deployment
-
-1. Create a `.env` file in the root directory:
-```env
-PRIVATE_KEY=your_deployer_private_key
-NEXT_PUBLIC_RPC_URL=https://rpc-mumbai.maticvigil.com
-POLYGONSCAN_API_KEY=your_polygonscan_api_key
-```
-
-2. Compile the contracts:
+6. **Return to root and compile smart contracts**
 ```bash
+cd ..
 npx hardhat compile
 ```
 
-3. Deploy to Polygon Mumbai:
+7. **Set up environment variables**
 ```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+8. **Run services separately**
+```bash
+# Terminal 1 - Start blockchain node
+npx hardhat node
+
+# Terminal 2 - Start backend
+npm run dev:backend
+
+# Terminal 3 - Start frontend
+npm run dev:frontend
+```
+
+## 🧪 Testing
+
+### Smart Contract Tests
+Run comprehensive smart contract tests:
+```bash
+npx hardhat test
+```
+
+### Integration Tests
+Use the comprehensive integration test page:
+```bash
+# Open in browser
+open test_integration.html
+```
+
+This provides a full test suite for:
+- Backend API connectivity
+- Web3 provider connection
+- Smart contract interaction
+- Full frontend-backend-contract integration
+
+## 🔧 Configuration
+
+### Environment Variables
+Create `.env` file with the following variables:
+
+```bash
+# Database Configuration
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=contentdefi
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+
+# Frontend Configuration
+FRONTEND_URL=http://localhost:3000
+
+# Web3 Configuration
+WEB3_PROVIDER_URL=http://localhost:8545
+PROJECT_FACTORY_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+
+# Token Addresses (for testing)
+USDC_TOKEN_ADDRESS=0x9999999999999999999999999999999999999999
+USDT_TOKEN_ADDRESS=0x8888888888888888888888888888888888888888
+
+# Default Percentages
+CREATOR_PERCENTAGE=2000
+PLATFORM_PERCENTAGE=500
+EMERGENCY_THRESHOLD=5000
+
+# Deployment (for production)
+MUMBAI_RPC_URL=<your_mumbai_rpc_url>
+POLYGON_RPC_URL=<your_polygon_rpc_url>
+PRIVATE_KEY=<your_private_key>
+ETHERSCAN_API_KEY=<your_etherscan_api_key>
+```
+
+## 🚀 Deployment
+
+### Local Deployment
+```bash
+# Deploy contracts to local Hardhat network
+npx hardhat run scripts/deploy.js --network localhost
+
+# Or use Docker Compose for full stack deployment
+docker-compose up --build
+```
+
+### Testnet Deployment
+```bash
+# Deploy to Mumbai testnet
 npx hardhat run scripts/deploy.js --network mumbai
 ```
 
-4. Update the frontend environment with deployed contract addresses:
-```env
-NEXT_PUBLIC_FACTORY_ADDRESS=your_deployed_factory_address
-```
-
-## Environment Setup
-
-Create `.env` files in both frontend and backend:
-
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_CHAIN_ID=80001
-NEXT_PUBLIC_RPC_URL=https://rpc-mumbai.maticvigil.com
-NEXT_PUBLIC_FACTORY_ADDRESS=your_factory_contract_address
-NEXT_PUBLIC_REVENUE_DISTRIBUTOR_ADDRESS=your_revenue_distributor_address
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
-NEXT_PUBLIC_ALCHEMY_ID=your_alchemy_id
-```
-
-### Backend (.env)
-```env
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=creativefi
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-# JWT
-JWT_SECRET=your_jwt_secret
-
-# IPFS (Pinata)
-PINATA_API_KEY=your_pinata_api_key
-PINATA_SECRET_KEY=your_pinata_secret_key
-
-# Payments (Transak)
-TRANSAK_API_KEY=your_transak_api_key
-TRANSAK_ENV=STAGING
-
-# Platform
-PLATFORM_FEE_PERCENTAGE=5
-```
-
-## Development
-
-### Frontend
+### Production Deployment
 ```bash
-cd frontend
-npm run dev
-```
-
-### Backend
-```bash
-cd backend
-npm run dev
-```
-
-### Smart Contracts
-```bash
-# Run tests
-npx hardhat test
-
-# Deploy to local network
-npx hardhat node
-
-# In another terminal, deploy to local network
-npx hardhat run scripts/deploy.js --network localhost
-```
-
-## Deployment
-
-### Frontend (to Vercel)
-1. Push code to GitHub
-2. Connect Vercel to your repository
-3. Set environment variables in Vercel dashboard
-4. Deploy
-
-### Backend (to Railway)
-1. Install Railway CLI
-2. Create Railway project
-3. Deploy using:
-```bash
-railway up
-```
-4. Set environment variables in Railway dashboard
-
-### Smart Contracts
-Deploy to Polygon Mainnet:
-```bash
+# Deploy to Polygon mainnet
 npx hardhat run scripts/deploy.js --network polygon
 ```
 
-## Testing
+## 📊 API Endpoints
 
-### Frontend
-```bash
-npm run test
-```
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `GET /api/auth/profile` - Get user profile
+- `PUT /api/auth/profile` - Update user profile
 
-### Smart Contracts
-```bash
-npx hardhat test
-```
-
-### Backend
-```bash
-npm run test
-```
-
-## API Documentation
-
-### Projects API
-- `GET /api/projects` - List projects with pagination and filtering
-- `GET /api/projects/:id` - Get project details
-- `POST /api/projects` - Create project (auth required)
-- `PUT /api/projects/:id` - Update project (auth required)
-- `POST /api/projects/:id/milestones` - Add milestone (auth required)
-
-### Users API
-- `POST /api/users/register` - Register user
-- `GET /api/users/:address` - Get user profile
-- `PUT /api/users/:address` - Update user profile (auth required)
-
-### Analytics API
-- `GET /api/stats` - Platform statistics
-- `GET /api/projects/:id/analytics` - Project analytics
-- `GET /api/users/:address/analytics` - User analytics
-
-### Media API
-- `POST /api/upload` - Upload file to IPFS
-- `GET /api/media/:hash` - Get media from IPFS
-
-### Payment API
-- `POST /api/onramp/quote` - Get fiat to crypto quote
-- `POST /api/offramp/initiate` - Initiate crypto to fiat conversion
-
-## Security
-
-### Smart Contracts
-- ReentrancyGuard protection
-- Access control (Ownable)
-- Input validation
-- Pausable mechanism
-- Proper error handling
-
-### Frontend
-- XSS prevention
-- Input sanitization
-- Secure wallet connection
-
-### Backend
-- JWT authentication
-- SQL injection prevention
-- Rate limiting
-- File upload validation
-- Helmet.js security headers
-- CORS configuration
-
----
+### Projects
+- `POST /api/projects` - Create project (with existing contract)
+- `POST /api/projects/with-contract` - Create project with new smart contract
+- `GET /api/projects` - List all projects
+- `GET /api/projects/:id` - Get specific project
+- `PUT /api/projects/:id` - Update project
+- `POST /api/projects/:id/milestones` - Add milestone
+- `POST /api/projects/:id/sync` - Sync with smart contract

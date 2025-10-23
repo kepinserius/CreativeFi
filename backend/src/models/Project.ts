@@ -1,5 +1,7 @@
 // backend/src/models/Project.ts
-import pool from '../config/db';
+import { Pool } from 'pg';
+
+let pool: Pool;
 
 export interface Project {
   id: number;
@@ -42,6 +44,9 @@ export interface Investment {
 }
 
 export class ProjectModel {
+  static setPool(newPool: Pool) {
+    pool = newPool;
+  }
   static async findById(id: number): Promise<Project | null> {
     const result = await pool.query(
       'SELECT * FROM projects WHERE id = $1',
@@ -136,6 +141,10 @@ export class ProjectModel {
 }
 
 export class MilestoneModel {
+  static setPool(newPool: Pool) {
+    pool = newPool;
+  }
+  
   static async create(milestoneData: Omit<Milestone, 'id' | 'created_at'>): Promise<Milestone> {
     const {
       project_id, title, description, amount, deadline, proof_url
@@ -161,6 +170,10 @@ export class MilestoneModel {
 }
 
 export class InvestmentModel {
+  static setPool(newPool: Pool) {
+    pool = newPool;
+  }
+  
   static async create(investmentData: Omit<Investment, 'id' | 'created_at'>): Promise<Investment> {
     const {
       project_id, investor_address, amount, token_amount, token, tx_hash

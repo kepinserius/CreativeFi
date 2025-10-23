@@ -1,60 +1,86 @@
 // backend/src/models/User.ts
-import pool from '../config/db';
+import { Pool } from 'pg';
 
 export interface User {
   id: number;
   wallet_address: string;
-  username?: string;
   email?: string;
+  username?: string;
   bio?: string;
   avatar_url?: string;
-  role: string; // 'creator' or 'investor'
+  role?: string;
   kyc_status?: string;
   created_at: Date;
+  updated_at: Date;
 }
 
 export class UserModel {
-  static async findByWalletAddress(walletAddress: string): Promise<User | null> {
-    const result = await pool.query(
-      'SELECT * FROM users WHERE wallet_address = $1',
-      [walletAddress]
-    );
-    return result.rows[0] || null;
+  private static pool: Pool;
+
+  static setPool(newPool: Pool) {
+    this.pool = newPool;
   }
 
-  static async create(userData: Omit<User, 'id' | 'created_at'>): Promise<User> {
-    const { wallet_address, username, email, bio, avatar_url, role, kyc_status } = userData;
-    const result = await pool.query(
-      `INSERT INTO users (wallet_address, username, email, bio, avatar_url, role, kyc_status) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) 
-       RETURNING *`,
-      [wallet_address, username, email, bio, avatar_url, role, kyc_status]
-    );
+  static async findByWalletAddress(wallet_address: string): Promise<User | null> {
+    if (!this.pool) {
+      throw new Error('Database pool not set');
+    }
+    
+    const query = 'SELECT * FROM users WHERE wallet_address = $1';
+    const result = await this.pool.query(query, [wallet_address]);
+    
+    return result.rows.length > 0 ? result.rows[0] : null;
+  }
+
+  static async findById(id: number): Promise<User | null> {
+    if (!this.pool) {
+      throw new Error('Database pool not set');
+    }
+    
+    const query = 'SELECT * FROM users WHERE id = $1';
+    const result = await this.pool.query(query, [id]);
+    
+    return result.rows.length > 0 ? result.rows[0] : null;
+  }
+
+  static async create(wallet_address: string, email?: string, username?: string, role?: string, kyc_status?: string): Promise<User> {
+    if (!this.pool) {
+      throw new Error('Database pool not set');
+    }
+    
+    const query = `
+      INSERT INTO users (wallet_address, email, username, role, kyc_status) 
+      VALUES ($1, $2, $3, $4, $5) 
+      RETURNING *
+    `;
+    const result = await this.pool.query(query, [wallet_address, email, username, role, kyc_status]);
+    
     return result.rows[0];
   }
 
-  static async updateByWalletAddress(walletAddress: string, updates: Partial<User>): Promise<User | null> {
-    const updateFields = Object.keys(updates).filter(key => 
-      ['username', 'email', 'bio', 'avatar_url', 'kyc_status'].includes(key)
-    );
-    
-    if (updateFields.length === 0) {
-      throw new Error('No valid fields to update');
+  static async updateByWalletAddress(wallet_address: string, updates: Partial<User>): Promise<User | null> {
+    if (!this.pool) {
+      throw new Error('Database pool not set');
     }
     
-    const setClause = updateFields.map((field, index) => `${field} = $${index + 2}`).join(', ');
-    const values = [walletAddress, ...updateFields.map(field => updates[field as keyof User])];
-    
-    const result = await pool.query(
-      `UPDATE users SET ${setClause}, updated_at = NOW() WHERE wallet_address = $1 RETURNING *`,
-      values
-    );
-    
-    return result.rows[0] || null;
-  }
+    // Build dynamic query
+    const fields = Object.keys(updates);
+    if (fields.length === 0) {
+      return await this.findByWalletAddress(wallet_address);
+    }
 
-  static async getAll(): Promise<User[]> {
-    const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
-    return result.rows;
+    const setClause = fields.map((field, index) => `${field} = ${index + 2}`).join(', ');
+    const values = [wallet_address, ...Object.values(updates)];
+
+    const query = `
+      UPDATE users 
+      SET ${setClause}, updated_at = NOW() 
+      WHERE wallet_address = $1 
+      RETURNING *
+    `;
+    
+    const result = await this.pool.query(query, values);
+    
+    return result.rows.length > 0 ? result.rows[0] : null;
   }
 }

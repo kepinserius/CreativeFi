@@ -61,7 +61,6 @@ router.get('/stats', async (req: Request, res: Response) => {
     console.error('Error fetching platform stats:', error);
     res.status(500).json({ message: 'Error fetching platform stats', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
 });
 
 // GET /api/projects/:id/analytics - Project analytics
@@ -148,7 +147,6 @@ router.get('/projects/:id/analytics', async (req: Request, res: Response) => {
     console.error('Error fetching project analytics:', error);
     res.status(500).json({ message: 'Error fetching project analytics', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
 });
 
 // GET /api/users/:address/analytics - User analytics
@@ -203,7 +201,6 @@ router.get('/users/:address/analytics', async (req: Request, res: Response) => {
     console.error('Error fetching user analytics:', error);
     res.status(500).json({ message: 'Error fetching user analytics', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
 });
 
 export default router;

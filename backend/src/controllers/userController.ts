@@ -1,6 +1,7 @@
 // backend/src/controllers/userController.ts
 import { Request, Response } from 'express';
 import { UserModel } from '../models/User';
+import { ProjectModel } from '../models/Project';
 import jwt from 'jsonwebtoken';
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -14,13 +15,7 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     // Create new user
-    const user = await UserModel.create({
-      wallet_address,
-      username,
-      email,
-      role: role || 'investor',
-      kyc_status: 'pending'
-    });
+    const user = await UserModel.create(wallet_address, email, username, role || 'investor', 'pending');
 
     // Generate JWT token
     const token = jwt.sign(
@@ -44,7 +39,7 @@ export const registerUser = async (req: Request, res: Response) => {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Error registering user', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 };
 
 export const getUserProfile = async (req: Request, res: Response) => {
@@ -71,7 +66,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ message: 'Error fetching user profile', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 };
 
 export const updateUserProfile = async (req: Request, res: Response) => {
@@ -106,22 +101,23 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     console.error('Error updating user profile:', error);
     res.status(500).json({ message: 'Error updating user profile', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 };
 
 export const getUserProjects = async (req: Request, res: Response) => {
   try {
     const walletAddress = req.params.address;
 
-    // This would be implemented in the projects controller
-    // For now, returning a placeholder response
+    // Get projects associated with the user
+    const projects = await ProjectModel.getByCreatorAddress(walletAddress);
+    
     res.json({
-      message: 'This endpoint would return projects associated with the user',
-      walletAddress
+      projects,
+      count: projects.length
     });
   } catch (error) {
     console.error('Error fetching user projects:', error);
     res.status(500).json({ message: 'Error fetching user projects', error: (error as Error).message });
   }
-  return; // Added return to satisfy TS7030
+  return; // Required to satisfy TS7030
 };

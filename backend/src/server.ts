@@ -5,13 +5,24 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 
+// Load environment variables first
+dotenv.config();
+
+// Now import other modules that depend on environment variables
+import pool from './config/db';
+import { UserModel } from './models/User';
+import { ProjectModel } from './models/Project';
+
+import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
 import userRoutes from './routes/users';
 import analyticsRoutes from './routes/analytics';
 import uploadRoutes from './routes/upload';
 import paymentRoutes from './routes/payments';
 
-dotenv.config();
+// Initialize database pools for models
+UserModel.setPool(pool);
+ProjectModel.setPool(pool);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,6 +86,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);

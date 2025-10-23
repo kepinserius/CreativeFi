@@ -1,5 +1,7 @@
 // src/components/CreatorDashboard.tsx
-import { useState } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
+import { useAccount } from 'wagmi';
 import { ProjectCard } from '../components/ProjectCard';
 
 interface Project {
@@ -15,64 +17,204 @@ interface Project {
   status: 'draft' | 'active' | 'funded' | 'completed' | 'failed';
   investorCount: number;
   roi: number;
+  contract_address: string;
+}
+
+interface Milestone {
+  id: number;
+  projectId: number;
+  title: string;
+  description: string;
+  amount: number;
+  deadline: string;
+  status: 'pending' | 'in_progress' | 'completed';
+}
+
+interface RevenueDistribution {
+  id: number;
+  projectTitle: string;
+  totalAmount: string;
+  platformShare: string;
+  creatorShare: string;
+  investorShare: string;
+  date: string;
 }
 
 export const CreatorDashboard = () => {
   const [activeTab, setActiveTab] = useState('projects');
-  
-  // Mock data for creator's projects
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: "Metaverse Music Festival",
-      description: "Immersive virtual music festival experience with NFT ticketing",
-      creator: "MusicMetaverseDAO",
-      category: "Music",
-      fundingGoal: 50000,
-      totalRaised: 38450,
-      deadline: "2023-12-31",
-      image: "/placeholder-project.jpg",
-      status: "active",
-      investorCount: 124,
-      roi: 25.5
-    },
-    {
-      id: 2,
-      title: "Eco-Friendly Fashion Line",
-      description: "Sustainable clothing line made from recycled materials",
-      creator: "GreenFashionCo",
-      category: "Fashion",
-      fundingGoal: 25000,
-      totalRaised: 25000,
-      deadline: "2023-11-15",
-      image: "/placeholder-project.jpg",
-      status: "funded",
-      investorCount: 89,
-      roi: 32.1
-    },
-    {
-      id: 3,
-      title: "Indie Documentary Series",
-      description: "Documentary exploring the impact of technology on society",
-      creator: "TechDocProductions",
-      category: "Film",
-      fundingGoal: 75000,
-      totalRaised: 12000,
-      deadline: "2024-01-20",
-      image: "/placeholder-project.jpg",
-      status: "active",
-      investorCount: 32,
-      roi: 12.3
-    }
-  ];
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [revenueDistributions, setRevenueDistributions] = useState<RevenueDistribution[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { address, isConnected } = useAccount();
 
-  // Mock stats
+  // Mock stats - in a real implementation these would come from API
   const stats = {
-    totalProjects: 3,
-    totalFunded: 75000,
-    totalInvestors: 245,
-    avgROI: 23.3
+    totalProjects: projects.length,
+    totalFunded: projects.reduce((sum, p) => sum + p.totalRaised, 0),
+    totalInvestors: projects.reduce((sum, p) => sum + p.investorCount, 0),
+    avgROI: projects.reduce((sum, p) => sum + p.roi, 0) / (projects.length || 1)
   };
+
+  // Fetch creator's projects when component mounts
+  useEffect(() => {
+    if (isConnected && address) {
+      fetchCreatorProjects();
+    }
+  }, [isConnected, address]);
+
+  const fetchCreatorProjects = async () => {
+    try {
+      setLoading(true);
+      // In a real implementation, this would call the backend API
+      // const response = await fetch(`/api/users/${address}/projects`);
+      // const data = await response.json();
+      
+      // Mock data for now
+      const mockProjects: Project[] = [
+        {
+          id: 1,
+          title: "Metaverse Music Festival",
+          description: "Immersive virtual music festival experience with NFT ticketing",
+          creator: address || "0x...",
+          category: "Music",
+          fundingGoal: 50000,
+          totalRaised: 38450,
+          deadline: "2023-12-31",
+          image: "/placeholder-project.jpg",
+          status: "active",
+          investorCount: 124,
+          roi: 25.5,
+          contract_address: "0x1234567890123456789012345678901234567890"
+        },
+        {
+          id: 2,
+          title: "Eco-Friendly Fashion Line",
+          description: "Sustainable clothing line made from recycled materials",
+          creator: address || "0x...",
+          category: "Fashion",
+          fundingGoal: 25000,
+          totalRaised: 25000,
+          deadline: "2023-11-15",
+          image: "/placeholder-project.jpg",
+          status: "funded",
+          investorCount: 89,
+          roi: 32.1,
+          contract_address: "0x1234567890123456789012345678901234567891"
+        },
+        {
+          id: 3,
+          title: "Indie Documentary Series",
+          description: "Documentary exploring the impact of technology on society",
+          creator: address || "0x...",
+          category: "Film",
+          fundingGoal: 75000,
+          totalRaised: 12000,
+          deadline: "2024-01-20",
+          image: "/placeholder-project.jpg",
+          status: "active",
+          investorCount: 32,
+          roi: 12.3,
+          contract_address: "0x1234567890123456789012345678901234567892"
+        }
+      ];
+      
+      setProjects(mockProjects);
+      
+      // Mock milestones
+      const mockMilestones: Milestone[] = [
+        {
+          id: 1,
+          projectId: 1,
+          title: "Platform Development",
+          description: "Complete core metaverse platform development",
+          amount: 15000,
+          deadline: "2023-09-15",
+          status: "completed"
+        },
+        {
+          id: 2,
+          projectId: 1,
+          title: "Artist Partnerships",
+          description: "Sign contracts with 10+ artists for performances",
+          amount: 10000,
+          deadline: "2023-10-15",
+          status: "in_progress"
+        },
+        {
+          id: 3,
+          projectId: 1,
+          title: "Marketing Campaign",
+          description: "Launch marketing and ticket sales",
+          amount: 8000,
+          deadline: "2023-11-15",
+          status: "pending"
+        },
+        {
+          id: 4,
+          projectId: 2,
+          title: "Material Sourcing",
+          description: "Source sustainable materials for production",
+          amount: 12000,
+          deadline: "2023-08-30",
+          status: "completed"
+        }
+      ];
+      
+      setMilestones(mockMilestones);
+      
+      // Mock revenue distributions
+      const mockRevenueDistributions: RevenueDistribution[] = [
+        {
+          id: 1,
+          projectTitle: "Metaverse Music Festival",
+          totalAmount: "500.00 ETH",
+          platformShare: "25.00 ETH",
+          creatorShare: "100.00 ETH",
+          investorShare: "375.00 ETH",
+          date: "2023-05-15"
+        },
+        {
+          id: 2,
+          projectTitle: "Eco-Friendly Fashion",
+          totalAmount: "325.50 ETH",
+          platformShare: "16.28 ETH",
+          creatorShare: "65.10 ETH",
+          investorShare: "244.12 ETH",
+          date: "2023-04-22"
+        }
+      ];
+      
+      setRevenueDistributions(mockRevenueDistributions);
+    } catch (error) {
+      console.error('Error fetching creator data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDistributeRevenue = async () => {
+    // In a real implementation, this would call the smart contract
+    // to distribute revenue to investors
+    console.log('Distributing revenue...');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (!isConnected) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
+        <p className="text-gray-400 mb-6">Please connect your wallet to access your creator dashboard</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -92,7 +234,7 @@ export const CreatorDashboard = () => {
         </div>
         <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
           <p className="text-gray-400">Avg. ROI</p>
-          <p className="text-3xl font-bold text-purple-500">{stats.avgROI}%</p>
+          <p className="text-3xl font-bold text-purple-500">{stats.avgROI.toFixed(1)}%</p>
         </div>
       </div>
 
@@ -117,7 +259,10 @@ export const CreatorDashboard = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">My Projects</h2>
-              <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+              <button 
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                onClick={() => window.location.href = '/create'}
+              >
                 Create New Project
               </button>
             </div>
@@ -165,10 +310,18 @@ export const CreatorDashboard = () => {
                   </div>
 
                   <div className="mt-4 flex space-x-2">
-                    <button className="text-sm px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded">
+                    <button 
+                      className="text-sm px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded"
+                      onClick={() => window.location.href = `/project/${project.id}`}
+                    >
                       View
                     </button>
-                    <button className="text-sm px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded">
+                    <button 
+                      className="text-sm px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded"
+                      onClick={() => {
+                        // In a real implementation, this would navigate to project management page
+                      }}
+                    >
                       Manage
                     </button>
                   </div>
@@ -214,61 +367,55 @@ export const CreatorDashboard = () => {
             <p className="text-gray-400 mb-6">Track and manage project milestones.</p>
             
             <div className="space-y-4">
-              {projects.map(project => (
-                <div key={project.id} className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold">{project.title}</h3>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      project.status === 'active' ? 'bg-yellow-900/50 text-yellow-400' :
-                      project.status === 'funded' ? 'bg-green-900/50 text-green-400' :
-                      'bg-gray-700 text-gray-300'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Platform Development</p>
-                        <p className="text-sm text-gray-400">Complete core metaverse platform development</p>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-green-500 text-sm">Completed</span>
-                        <button className="text-sm px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded">
-                          Release Funds
-                        </button>
-                      </div>
+              {Array.from(new Set(milestones.map(m => m.projectId))).map(projectId => {
+                const project = projects.find(p => p.id === projectId);
+                const projectMilestones = milestones.filter(m => m.projectId === projectId);
+                
+                return (
+                  <div key={projectId} className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-bold">{project?.title}</h3>
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        project?.status === 'active' ? 'bg-yellow-900/50 text-yellow-400' :
+                        project?.status === 'funded' ? 'bg-green-900/50 text-green-400' :
+                        'bg-gray-700 text-gray-300'
+                      }`}>
+                        {project?.status}
+                      </span>
                     </div>
                     
-                    <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Artist Partnerships</p>
-                        <p className="text-sm text-gray-400">Sign contracts with 10+ artists for performances</p>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-yellow-500 text-sm">In Progress</span>
-                        <button className="text-sm px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded">
-                          Submit Proof
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Marketing Campaign</p>
-                        <p className="text-sm text-gray-400">Launch marketing and ticket sales</p>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-gray-500 text-sm">Pending</span>
-                        <button className="text-sm px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded">
-                          Submit Proof
-                        </button>
-                      </div>
+                    <div className="space-y-3">
+                      {projectMilestones.map(milestone => (
+                        <div key={milestone.id} className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
+                          <div>
+                            <p className="font-medium">{milestone.title}</p>
+                            <p className="text-sm text-gray-400">{milestone.description}</p>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className={`text-sm ${
+                              milestone.status === 'completed' ? 'text-green-500' :
+                              milestone.status === 'in_progress' ? 'text-yellow-500' :
+                              'text-gray-500'
+                            }`}>
+                              {milestone.status.charAt(0).toUpperCase() + milestone.status.slice(1)}
+                            </span>
+                            <button 
+                              className={`text-sm px-3 py-1 rounded ${
+                                milestone.status === 'completed' 
+                                  ? 'bg-purple-600 hover:bg-purple-700' 
+                                  : 'bg-gray-700 hover:bg-gray-600'
+                              }`}
+                              disabled={milestone.status !== 'completed'}
+                            >
+                              {milestone.status === 'completed' ? 'Release Funds' : 'Pending'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -281,7 +428,10 @@ export const CreatorDashboard = () => {
             <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6 mb-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold">Revenue Distribution Settings</h3>
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm">
+                <button 
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm"
+                  onClick={handleDistributeRevenue}
+                >
                   Distribute Revenue
                 </button>
               </div>
@@ -316,22 +466,16 @@ export const CreatorDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-gray-800">
-                    <td className="py-3">Metaverse Music Festival</td>
-                    <td className="py-3 text-right">500.00 ETH</td>
-                    <td className="py-3 text-right">25.00 ETH</td>
-                    <td className="py-3 text-right">100.00 ETH</td>
-                    <td className="py-3 text-right">375.00 ETH</td>
-                    <td className="py-3 text-right">2023-05-15</td>
-                  </tr>
-                  <tr className="border-b border-gray-800">
-                    <td className="py-3">Eco-Friendly Fashion</td>
-                    <td className="py-3 text-right">325.50 ETH</td>
-                    <td className="py-3 text-right">16.28 ETH</td>
-                    <td className="py-3 text-right">65.10 ETH</td>
-                    <td className="py-3 text-right">244.12 ETH</td>
-                    <td className="py-3 text-right">2023-04-22</td>
-                  </tr>
+                  {revenueDistributions.map(distribution => (
+                    <tr key={distribution.id} className="border-b border-gray-800">
+                      <td className="py-3">{distribution.projectTitle}</td>
+                      <td className="py-3 text-right">{distribution.totalAmount}</td>
+                      <td className="py-3 text-right">{distribution.platformShare}</td>
+                      <td className="py-3 text-right">{distribution.creatorShare}</td>
+                      <td className="py-3 text-right">{distribution.investorShare}</td>
+                      <td className="py-3 text-right">{distribution.date}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

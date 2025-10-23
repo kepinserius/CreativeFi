@@ -1,5 +1,5 @@
 {
-  "name": "creativefi",
+  "name": "contentdefi",
   "version": "1.0.0",
   "description": "A decentralized crowdfunding platform for creators",
   "main": "index.js",
@@ -12,11 +12,11 @@
     "build:backend": "cd backend && npm run build",
     "start": "node backend/dist/server.js",
     "test": "npm run test:contracts && npm run test:frontend && npm run test:backend",
-    "test:contracts": "cd creativefi && npx hardhat test",
+    "test:contracts": "npx hardhat test",
     "test:frontend": "cd frontend && npm run test",
     "test:backend": "cd backend && npm run test",
-    "compile": "cd creativefi && npx hardhat compile",
-    "deploy": "cd creativefi && npx hardhat run scripts/deploy.js --network mumbai"
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js --network mumbai"
   },
   "keywords": [
     "blockchain",
@@ -28,12 +28,15 @@
     "nft",
     "creator-economy"
   ],
-  "author": "CreativeFi Team",
+  "author": "ContentDeFi Team",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "concurrently": "^8.2.0",
+    "dotenv": "^16.3.1"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
     "hardhat": "^2.22.0"
   },
   "directories": {
@@ -43,10 +46,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/creativefi.git"
+    "url": "git+https://github.com/yourusername/contentdefi.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/creativefi/issues"
+    "url": "https://github.com/yourusername/contentdefi/issues"
   },
-  "homepage": "https://github.com/yourusername/creativefi#readme"
+  "homepage": "https://github.com/yourusername/contentdefi#readme"
 }

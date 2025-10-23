@@ -1,4 +1,5 @@
 // src/components/CreateProjectForm.tsx
+'use client';
 import { useState } from 'react';
 
 export const CreateProjectForm = () => {
